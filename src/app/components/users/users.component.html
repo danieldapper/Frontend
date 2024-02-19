@@ -1,0 +1,184 @@
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-evenly m-2">
+
+        <div>
+            <button type="button" class="btn btn-secondary" (click)="AgregarUsuario()"> Agregar Nuevo Usuario</button>
+        </div>
+        <div>
+            USUARIOS
+        </div>
+        <div>
+            <button type="button" class="btn btn-secondary" (click)="AgregarTarea()"> Agregar Nueva Tarea</button>
+        </div>
+    </div>
+
+
+
+    <div *ngIf="showSuccessAlert" class="alert alert-success">{{ messageSent }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div class="container m-2" *ngIf="viewNewUser">
+        <form [formGroup]="userForm" (ngSubmit)="PostNewUSer()">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input class="form-control mt-2" type="text" maxlength="100" formControlName="name" required>
+                    </div>
+                </div>
+                <button class="btn btn-info" [disabled]="submittingForm" style="color: snow;" type="submit">Enviar
+                    Mensaje <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container m-2" *ngIf="viewNewTarea">
+        <form [formGroup]="tareaForm" (ngSubmit)=" newTarea()">
+            <div class="row">
+                <div class="col-12">
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Nombre De la Tarea</label>
+                        <input class="form-control mt-2" type="text" maxlength="100" formControlName="name" required>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label>Selecciona el usuario</label>
+                        <select class="form-select form-select-lg mb-3" aria-label="Large select example"
+                            formControlName="userId" required>
+                            <option value="" disabled selected>Selecciona un usuario</option>
+                            <option *ngFor="let item of users" [value]="item._id">{{item.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-info" [disabled]="submittingForm" style="color: snow;" type="submit">Enviar
+                    Mensaje <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+
+
+    <div *ngIf="!viewTareas && !viewUpdate">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">id</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Tareas</th>
+                    <th scope="col">Editar</th>
+                    <th scope="col">Eliminar</th>
+
+                </tr>
+
+            </thead>
+            <tbody *ngFor="let item of users; let i = index">
+                <tr>
+                    <th scope="row">1</th>
+                    <td>{{item._id}}</td>
+                    <td>{{item.name}}</td>
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-secondary"
+                                (click)="getAllTareasById(item._id)">Visualizar Tareas
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-warning" (click)="getbyIdUser(item._id)">Editar
+                                <i class="fa fa-pen"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-danger" (click)="deleteUser(item._id, i)">Eliminar
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+
+        </table>
+        <div *ngIf="users.length === 0" class="col-12 container">
+            <div class="alert alert-secondary d-flex justify-content-center" role="alert">
+                No cuentas con usuarios registrados en la base de datos
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="container" *ngIf="viewTareas">
+    <div class="m-1">
+        <button type="button" class="btn btn-secondary" (click)="returnToTable()">
+            <i class="fa fa-caret-left"></i>
+        </button>
+
+    </div>
+
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">id Tarea:</th>
+                <th scope="col">User id: {{id}} <span class="badge badge-success">Success</span> </th>
+                <th scope="col">{{username}}</th>
+                <th scope="col">Eliminar</th>
+
+            </tr>
+
+        </thead>
+        <tbody *ngFor="let item of tareas; let i = index">
+            <tr>
+                <th scope="row"> {{item._id}}</th>
+                <td>{{item.name}}</td>
+                <td>{{item.name}}</td>
+                <td>
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-danger" (click)="deleteTarea(item._id, i)">Eliminar
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+
+
+    </table>
+    <div *ngIf="tareas.length === 0" class="col-12 container">
+        <div class="alert alert-secondary d-flex justify-content-center" role="alert">
+            Este Usuario no cuenta con tareas asignadas
+        </div>
+    </div>
+</div>
+
+
+<div class="container" *ngIf="viewUpdate">
+    <form [formGroup]="updateUserForm" (ngSubmit)="sendUpdateUser()">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input class="form-control mt-2" [(ngModel)]="user._id" type="text" maxlength="100"
+                        formControlName="_id" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input class="form-control mt-2" [(ngModel)]="user.name" type="text" maxlength="100"
+                        formControlName="name" required>
+                </div>
+            </div>
+            <button class="btn btn-info" [disabled]="submittingForm" style="color: snow;" type="submit">Enviar
+                Mensaje <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </form>
+</div>
