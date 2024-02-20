@@ -1,0 +1,67 @@
+
+<div class="container">
+    <h1>Lista de las Tareas del usuario <b>{{user}}</b></h1>
+</div>
+
+<div *ngIf="showSuccessAlert" class="alert alert-success">{{ messageSent }}</div>
+<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+
+<div class="container ">
+
+  <form [formGroup]="tareaForm" (ngSubmit)="sendTarea()">
+    <div class="col-12 row">
+      <div class="col-6">
+        <div class="form-group">
+        <input type="email" class="form-control" formControlName="name" placeholder="Agregar el nombre de la tarea" required>
+        <small id="emailHelp" class="form-text text-muted">Esta tarea se le asignara al usuario: 
+             <b> {{user}}</b> 
+        </small>
+      </div>
+      </div>
+      <div class="col-6">
+        <button type="submit" [disabled]="submittingForm" class="btn btn-primary">Agregar Tarea</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div *ngIf="tareas.length !== 0">
+    <table mat-table [dataSource]="tareas" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="_id">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let element"> {{element._id}} </td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>TAREA</th>
+          <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="tasks">
+            <th mat-header-cell *matHeaderCellDef>EDITAR</th>
+            <td mat-cell *matCellDef="let element"> 
+                <button mat-fab color="primary">
+                    <mat-icon>menu</mat-icon>
+                  </button>
+            </td>
+          </ng-container>
+        <ng-container matColumnDef="delete">
+            <th mat-header-cell *matHeaderCellDef>ELIMINAR</th>
+            <td mat-cell *matCellDef="let element; let i = index"> 
+                <button mat-fab color="primary"  (click)="deleteTarea(element._id, i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+            </td>
+          </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+</div>
+
+
+  <div *ngIf="tareas.length === 0" class="col-12 container">
+    <div class="alert alert-secondary d-flex justify-content-center" role="alert">
+        Este Usuario no cuenta con tareas asignadas
+    </div>
+</div>
+

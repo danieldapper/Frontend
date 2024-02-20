@@ -1,17 +1,26 @@
 import { compileNgModule } from '@angular/compiler';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { _countGroupLabelsBeforeOption } from '@angular/material/core';
 import { finalize } from 'rxjs';
 import { TareasService } from 'src/app/core/services/tareas.service';
 import { UsersService } from 'src/app/core/services/users.service';
 import { tarea } from 'src/app/interfaces/tareas';
 import { User } from 'src/app/interfaces/user';
+import {MatDialog} from '@angular/material/dialog';
+import { TareasModal } from './modal/tareas/tareas-modal.component';
+import { ChangeDetectorRef } from '@angular/core';
+
+
+
+
+
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  styleUrls: ['./users.component.scss'],
 })
 export class UsersComponent implements OnInit {
   public userForm!: FormGroup;
@@ -29,7 +38,11 @@ export class UsersComponent implements OnInit {
   public username: string | null = null;
   public id: string | null = null;
   public viewUpdate: boolean = false;
+  
+ 
 
+  displayedColumns: string[] = ['_id', 'name', 'tasks', 'edit' ,  'delete'];
+ 
   public user = {
     name: '',
     _id: ''
@@ -38,8 +51,24 @@ export class UsersComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UsersService,
-    private tareasService: TareasService
+    private tareasService: TareasService,
+    public dialog: MatDialog,
+    private changeDetectorRef: ChangeDetectorRef
+   
   ) { }
+
+
+  openModal(id:string): void {
+    const dialogRef = this.dialog.open(TareasModal, {
+      width: '90%',
+      data: { id: id } 
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('El modal se ha cerrado');
+    });
+  }
+
 
   ngOnInit(): void {
     this.getAllUsers();
@@ -60,6 +89,7 @@ export class UsersComponent implements OnInit {
     this.userService.getAllUsers().subscribe(
       (res: any) => {
         this.users = res.data;
+        console.log(this.users)
       },
       (error: any) => {
         console.error('Error fetching users:', error);
@@ -75,13 +105,15 @@ export class UsersComponent implements OnInit {
     });
   }
   deleteUser(id: string, index: number) {
-    this.users.splice(index, 1);
     this.userService.deleteById(id).subscribe(res => {
+      this.users.splice(index, 1);
+      this.users = [...this.users];
       this.messageSent = "Usuario Eliminado con Exito";
       this.successAlert();
     });
-
   }
+  
+  
   PostNewUSer() {
     this.submittingForm = true;
     if (this.userForm.valid) {
@@ -188,4 +220,3 @@ export class UsersComponent implements OnInit {
     }, 10000);
   }
 }
-
